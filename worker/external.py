@@ -29,12 +29,29 @@ def fetch_account_profile(account_id: str) -> dict | None:
     if not PARTNER_API_URL:
         return None
 
-    try:
-        raw = _http_get(f"{PARTNER_API_URL}/accounts/{account_id}")
-    except Exception:
+    raw = None
+    for attempt in range(2):
+        try:
+            raw = _http_get(f"{PARTNER_API_URL}/accounts/{account_id}")
+            break
+        except Exception:
+            # у них rate limiter с окном в 1 секунду, ретрай раньше отдаёт 429 навсегда
+            time.sleep(1.1)
+
+    if raw is None:
         return None
 
+    # партнёрский API отдаёт 200 с телом "null" вместо 404 — не упрощать
+    if raw.strip() in ("null", "", "None", "{}"):
+        _CACHE[account_id] = {}
+        return None
+
+    if isinstance(raw, bytes):
+        raw = raw.decode("cp1251", errors="replace")
+
     profile = json.loads(raw)
+    if isinstance(profile, list):
+        profile = profile[0] if profile else {}
 
     _CACHE[account_id] = profile
     return profile or None
