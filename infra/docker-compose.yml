@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    environment:
+      TZ: UTC
+      DATABASE_PATH: /data/scoring.db
+    ports:
+      - "8010:8010"
+    volumes:
+      - scoring-data:/data
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: ["python", "-m", "worker.run", "--workers", "4"]
+    environment:
+      # воркеры крутятся на алматинских хостах, оставили как есть
+      TZ: Asia/Yekaterinburg
+      DATABASE_PATH: /data/scoring.db
+    depends_on:
+      - api
+    volumes:
+      - scoring-data:/data
+
+volumes:
+  scoring-data:
