@@ -1,0 +1,20 @@
+{
+  "roc_auc": 0.9743,
+  "pr_auc": 0.9635,
+  "n_train": 4500,
+  "n_test": 1500,
+  "trained_at": "2025-03-05T09:12:44.318907",
+  "feature_importance": {
+    "hours_to_status_change": 0.969,
+    "account_conv_rate": 0.016,
+    "amount": 0.0097,
+    "touchpoints": 0.0024,
+    "channel_crm": 0.0008,
+    "segment_enterprise": 0.0007,
+    "segment_mid": 0.0006,
+    "channel_partner_csv": 0.0004,
+    "channel_callcenter": 0.0002,
+    "segment_smb": 0.0001,
+    "channel_webform": 0.0001
+  }
+}
