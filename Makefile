@@ -4,7 +4,7 @@ seed:
 	python scripts/seed_data.py
 
 api:
-	uvicorn api.main:app --reload
+	uvicorn api.main:app --reload --port 8010
 
 worker:
 	python -m worker.run
