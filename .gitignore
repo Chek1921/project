@@ -4,3 +4,4 @@ scoring.db
 node_modules/
 dist/
 ml/data/
+.DS_Store

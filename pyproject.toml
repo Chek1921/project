@@ -1,0 +1,29 @@
+[project]
+name = "scoring-service"
+version = "1.4.2"
+description = "Внутренний сервис скоринга лидов"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+    "pydantic>=2.10",
+    "httpx>=0.28",
+    "scikit-learn>=1.6",
+    "pandas>=2.2",
+    "numpy>=2.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = ["E501"]
