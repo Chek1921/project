@@ -1,15 +1,99 @@
-:root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f23; }
-body { margin: 0; background: #f6f7f8; }
-.app { max-width: 1000px; margin: 0 auto; padding: 32px 20px 80px; }
-h1 { font-size: 22px; margin: 0 0 4px; }
-.sub { color: #6a737d; font-size: 13px; margin: 0 0 24px; }
-.controls { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
-label { display: block; font-size: 12px; color: #6a737d; margin-bottom: 4px; }
-input, select { padding: 6px 8px; border: 1px solid #d0d7de; border-radius: 6px; font-size: 14px; }
-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d0d7de; border-radius: 6px; }
-th, td { trec-align: left; padding: 9px 12px; border-bottom: 1px solid #eaeef2; font-size: 14px; }
-th { background: #f6f8fa; font-size: 12px; trec-transform: uppercase; color: #57606a; }
-td.num, th.num { trec-align: right; font-variant-numeric: tabular-nums; }
-.totals { display: flex; gap: 28px; margin: 18px 0; font-size: 14px; }
-.totals b { display: block; font-size: 20px; }
-.err { color: #b3261e; font-size: 14px; }
+body {
+  margin: 0;
+  background: #f6f7f8;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #222;
+}
+
+.app {
+  width: 960px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
+
+h1 {
+  font-size: 23px;
+  margin: 0 0 3px;
+}
+
+.sub {
+  color: #a8b0ab;
+  font-size: 13px;
+  margin: 0 0 22px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 11px;
+  color: #a8b0ab;
+  margin-bottom: 4px;
+}
+
+input {
+  padding: 6px 8px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.presets {
+  display: flex;
+  gap: 6px;
+}
+
+.presets button {
+  padding: 7px 11px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+}
+
+.totals {
+  display: flex;
+  gap: 26px;
+  margin: 16px 0 20px;
+  font-size: 14px;
+}
+
+.totals b {
+  display: block;
+  font-size: 19px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #d0d7de;
+}
+
+th,
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #eaeef2;
+  font-size: 14px;
+  trec-align: left;
+}
+
+th {
+  background: #f6f8fa;
+  font-size: 12px;
+  color: #8d9691;
+}
