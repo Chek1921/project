@@ -4,205 +4,428 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Панель аналитика — макет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-/* ============================================================
-   ТОКЕНЫ. Это единственный источник цветов, шрифтов и отступов.
-   В коде они должны стать CSS-переменными, а не магическими числами.
-   ============================================================ */
+/* ═══════════════════════════════════════════════════════════════
+   ТОКЕНЫ — единственный источник цвета, шрифта и ритма.
+   В коде это должны быть CSS-переменные, а не числа по месту.
+   ═══════════════════════════════════════════════════════════════ */
 :root{
-  --bg:#F4F6F5;  --surface:#FFFFFF;  --sunken:#EDF0EE;
-  --ink:#16201D;  --ink-2:#5A6862;  --ink-3:#8B978F;
-  --line:#DCE2DE;
-  --accent:#1F6F63;  --accent-soft:#E4F0ED;
-  --pos:#2E7D5B;  --neg:#B4453A;
+  /* поверхности */
+  --paper:#F2F4F3;
+  --surface:#FFFFFF;
+  --sunken:#E9EDEB;
 
-  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px;
-  --radius:10px;
-  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* чернила */
+  --ink:#101817;
+  --ink-2:#55635E;
+  --ink-3:#8C9A94;
+  --line:#DBE1DE;
+  --line-strong:#C3CCC7;
 
-  /* шкала типографики */
-  --t-display:28px/1.15 var(--font);
-  --t-metric:30px/1.05 var(--font);
-  --t-body:14px/1.5 var(--font);
-  --t-label:11px/1.3 var(--font);
+  /* акцент: только фокус, активный чип, метка текущего часа */
+  --accent:#2B3AA0;
+  --accent-soft:#E7E9F6;
+
+  /* семантика: живёт только внутри дельт и статусов */
+  --pos:#1E7A57;
+  --neg:#B03A2E;
+  --warn:#A96A00;
+
+  /* ритм: шаг 4px */
+  --sp-1:4px;  --sp-2:8px;  --sp-3:12px; --sp-4:16px;
+  --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px;
+  --radius:12px;
+  --radius-sm:8px;
+
+  /* гарнитуры */
+  --display:"Instrument Sans",system-ui,-apple-system,sans-serif;
+  --ui:"Manrope",system-ui,-apple-system,sans-serif;
+  --num:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* шкала */
+  --t-h1:clamp(26px,3.4vw,34px);
+  --t-metric:clamp(26px,3.2vw,32px);
+  --t-body:14px;
+  --t-small:13px;
+  --t-label:11px;
 }
+
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:var(--t-body);-webkit-font-smoothing:antialiased}
-.page{max-width:1060px;margin:0 auto;padding:var(--sp-6) var(--sp-5) var(--sp-7)}
+html{color-scheme:light}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:500 var(--t-body)/1.5 var(--ui);
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:1080px;margin:0 auto;padding:var(--sp-6) var(--sp-5) var(--sp-8)}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum";word-spacing:-.18em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 
-/* ---------- шапка ---------- */
-.top{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sp-4);
-     padding-bottom:var(--sp-4);border-bottom:1px solid var(--line);margin-bottom:var(--sp-5)}
-h1{font:var(--t-display);font-weight:650;letter-spacing:-.02em;margin:0}
-.sub{color:var(--ink-2);margin:var(--sp-1) 0 0}
-.who{display:flex;align-items:center;gap:var(--sp-2);font-size:13px;color:var(--ink-2)}
-.who select{font:var(--t-body);padding:6px var(--sp-3);border:1px solid var(--line);
-            border-radius:8px;background:var(--surface);color:var(--ink)}
+/* ═══ шапка ═══ */
+.masthead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sp-4);
+  flex-wrap:wrap;padding-bottom:var(--sp-4);border-bottom:1px solid var(--line-strong);
+  margin-bottom:var(--sp-5);
+}
+h1{
+  font:700 var(--t-h1)/1 var(--display);letter-spacing:-.03em;margin:0;
+}
+.masthead .meta{color:var(--ink-2);font-size:var(--t-small);margin:var(--sp-2) 0 0}
+.masthead .meta b{color:var(--ink);font-weight:600}
+/* цифры в тексте: табличные, но гарнитура интерфейсная — иначе кириллица уедет в фолбэк */
+.tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 
-/* ---------- фильтры ---------- */
-.filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--sp-3);margin-bottom:var(--sp-5)}
-.field{display:flex;flex-direction:column;gap:var(--sp-1)}
-label{font:var(--t-label);letter-spacing:.06em;trec-transform:uppercase;color:var(--ink-3)}
-input[type=date]{font:var(--t-body);padding:7px var(--sp-3);border:1px solid var(--line);
-                 border-radius:8px;background:var(--surface);color:var(--ink)}
-.presets{display:flex;gap:var(--sp-1);margin-left:auto}
-.chip{font:var(--t-body);padding:7px var(--sp-3);border:1px solid var(--line);border-radius:999px;
-      background:var(--surface);color:var(--ink-2);cursor:pointer}
-.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:550}
-.btn{font:var(--t-body);font-weight:550;padding:8px var(--sp-4);border-radius:8px;cursor:pointer;
-     border:1px solid var(--accent);background:var(--accent);color:#fff}
-.btn.ghost{background:var(--surface);color:var(--accent)}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.daynav{display:flex;align-items:center;gap:var(--sp-1)}
+.daynav button{
+  font:600 var(--t-body) var(--ui);color:var(--ink-2);cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+  width:32px;height:32px;display:grid;place-items:center;
+}
+.daynav button:hover{color:var(--ink);border-color:var(--line-strong)}
+.daynav .current{
+  font:600 var(--t-body) var(--ui);padding:0 var(--sp-3);height:32px;
+  display:grid;place-items:center;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius-sm);min-width:132px;
+}
+.who{
+  display:flex;align-items:center;gap:var(--sp-2);
+  font-size:var(--t-small);color:var(--ink-2);
+}
+.who select{
+  font:500 var(--t-body) var(--ui);color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius-sm);padding:6px var(--sp-3);
+}
 
-/* ---------- метрики ---------- */
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-3);margin-bottom:var(--sp-5)}
-.metric{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:var(--sp-4)}
-.metric .k{font:var(--t-label);letter-spacing:.06em;trec-transform:uppercase;color:var(--ink-3);
-           display:block;margin-bottom:var(--sp-2)}
-.metric .v{font:var(--t-metric);font-weight:650;letter-spacing:-.02em;
-           font-variant-numeric:tabular-nums;display:block}
-.metric .d{font-size:12px;color:var(--ink-2);margin-top:var(--sp-1);display:block}
-.metric .d.up{color:var(--pos)} .metric .d.down{color:var(--neg)}
+/* ═══ СИГНАТУРА: пульс суток ═══ */
+.pulse{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:var(--sp-4) var(--sp-5) var(--sp-3);margin-bottom:var(--sp-4);
+}
+.pulse-top{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3);margin-bottom:var(--sp-4)}
+.eyebrow{
+  font:600 var(--t-label)/1 var(--ui);letter-spacing:.14em;trec-transform:uppercase;
+  color:var(--ink-3);margin:0;
+}
+.pulse-note{font-size:var(--t-small);color:var(--ink-2)}
+.pulse-note b{color:var(--ink);font-weight:600}
 
-/* ---------- таблица ---------- */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-.card-head{display:flex;align-items:center;justify-content:space-between;
-           padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--line)}
-.card-head h2{font-size:15px;font-weight:600;margin:0}
-.tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:520px}
-th,td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--line);trec-align:left}
-th{font:var(--t-label);letter-spacing:.06em;trec-transform:uppercase;color:var(--ink-3);
-   background:var(--sunken);white-space:nowrap}
+.bars{display:flex;align-items:flex-end;gap:3px;height:104px}
+.bar{
+  flex:1;background:var(--sunken);border-radius:2px 2px 0 0;position:relative;
+  transform-origin:bottom;
+}
+.bar.peak{background:var(--ink)}
+.bar.now{background:var(--accent)}
+.bar.now::after{
+  content:"сейчас";position:absolute;left:50%;translate:-50% 0;bottom:-20px;
+  font:600 10px var(--ui);letter-spacing:.06em;color:var(--accent);white-space:nowrap;
+}
+.bars{margin-bottom:var(--sp-4)}
+@media (prefers-reduced-motion:no-preference){
+  .bar{animation:rise .5s cubic-bezier(.2,.7,.3,1) backwards}
+  @keyframes rise{from{transform:scaleY(.04);opacity:.4}}
+}
+.hours{
+  display:flex;justify-content:space-between;margin-top:var(--sp-4);
+  font-size:var(--t-label);color:var(--ink-3);
+}
+
+/* ═══ метрики ═══ */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-4);margin-bottom:var(--sp-5)}
+.metric{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:var(--sp-4) var(--sp-5) var(--sp-5);
+}
+.metric .k{display:block;margin-bottom:var(--sp-3)}
+.metric .v{
+  display:block;font:600 var(--t-metric)/1 var(--num);letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;word-spacing:-.22em;
+}
+.metric .v small{font-size:.5em;font-weight:500;color:var(--ink-3);margin-left:.35em;letter-spacing:0}
+.delta{display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-3);font-size:var(--t-small)}
+.delta .arrow{font-size:11px;line-height:1}
+.delta.up{color:var(--pos)} .delta.down{color:var(--neg)} .delta.flat{color:var(--ink-2)}
+.delta .vs{color:var(--ink-3)}
+
+/* ═══ таблица ═══ */
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:var(--sp-5);
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
+  padding:var(--sp-4) var(--sp-5);border-bottom:1px solid var(--line);
+}
+.panel-head .count{font-size:var(--t-small);color:var(--ink-3)}
+.actions{display:flex;gap:var(--sp-2);align-items:center}
+.chip{
+  font:600 var(--t-small) var(--ui);padding:6px var(--sp-3);cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:999px;color:var(--ink-2);
+}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.btn{
+  font:600 var(--t-small) var(--ui);padding:7px var(--sp-4);cursor:pointer;
+  background:var(--ink);color:var(--surface);border:1px solid var(--ink);border-radius:var(--radius-sm);
+}
+.btn:hover{background:#000}
+
+.scroller{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{padding:var(--sp-3) var(--sp-5);border-bottom:1px solid var(--line);trec-align:left}
+th{
+  font:600 var(--t-label)/1 var(--ui);letter-spacing:.12em;trec-transform:uppercase;
+  color:var(--ink-3);background:var(--sunken);white-space:nowrap;padding-top:var(--sp-3);padding-bottom:var(--sp-3);
+}
+th.r,td.r{trec-align:right}
 tbody tr:last-child td{border-bottom:0}
 tbody tr:hover{background:var(--sunken)}
-.num{trec-align:right;font-variant-numeric:tabular-nums}
-.acc{font-weight:550}
-.acc small{display:block;font-weight:400;font-size:12px;color:var(--ink-3);
-           font-variant-numeric:tabular-nums;margin-top:2px}
-.score{display:inline-block;min-width:52px;padding:2px var(--sp-2);border-radius:999px;
-       background:var(--sunken);font-variant-numeric:tabular-nums;font-size:13px;trec-align:center}
-.score.hi{background:var(--accent-soft);color:var(--accent);font-weight:550}
+td.rank{width:40px;color:var(--ink-3);font-family:var(--num);font-size:var(--t-small)}
+td.acc{font-weight:600}
+td.acc small{
+  display:block;font-weight:400;font-size:12px;color:var(--ink-3);
+  font-family:var(--num);margin-top:2px;
+}
+td.n{font-family:var(--num);font-variant-numeric:tabular-nums;word-spacing:-.18em}
 
-/* ---------- состояния ---------- */
-.state{padding:var(--sp-7) var(--sp-4);trec-align:center;color:var(--ink-2)}
-.state b{display:block;color:var(--ink);font-size:15px;margin-bottom:var(--sp-1)}
-.skeleton{height:14px;border-radius:4px;background:linear-gradient(90deg,var(--sunken),#F7F9F8,var(--sunken));
-          background-size:200% 100%;animation:sh 1.2s linear infinite}
-@keyframes sh{to{background-position:-200% 0}}
-@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
-.err{border-left:3px solid var(--neg);background:#FDF3F2;padding:var(--sp-3) var(--sp-4);
-     display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3)}
-.err span{color:#7C2F27}
+/* скор: длина + число, а не только цвет */
+.score{display:flex;align-items:center;gap:var(--sp-3);justify-content:flex-end}
+.score .track{width:56px;height:6px;border-radius:999px;background:var(--sunken);overflow:hidden;flex:none}
+.score .fill{display:block;height:100%;border-radius:999px;background:var(--ink-2)}
+.score.high .fill{background:var(--ink)}
+.score .val{font-family:var(--num);font-variant-numeric:tabular-nums;min-width:44px;trec-align:right}
 
-/* ---------- адаптив ---------- */
-@media (max-width:720px){
+/* ═══ состояния ═══ */
+.state{padding:var(--sp-7) var(--sp-5);trec-align:center}
+.state b{display:block;font:600 15px var(--ui);margin-bottom:var(--sp-2)}
+.state p{margin:0 auto;max-width:44ch;color:var(--ink-2);font-size:var(--t-small)}
+.skel-row{display:flex;align-items:center;gap:var(--sp-5);padding:var(--sp-3) var(--sp-5);border-bottom:1px solid var(--line)}
+.skel{height:12px;border-radius:999px;background:var(--sunken);flex:1}
+.skel.w1{max-width:180px} .skel.w2{max-width:64px} .skel.w3{max-width:110px} .skel.w4{max-width:88px}
+@media (prefers-reduced-motion:no-preference){
+  .skel{background:linear-gradient(90deg,var(--sunken) 25%,#F1F5F3 37%,var(--sunken) 63%);
+        background-size:400% 100%;animation:shimmer 1.4s ease infinite}
+  @keyframes shimmer{from{background-position:100% 0}to{background-position:0 0}}
+}
+.error{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap;
+  padding:var(--sp-4) var(--sp-5);border-left:3px solid var(--neg);background:#FCF4F3;
+}
+.error .msg{color:#7E2A20;font-size:var(--t-small)}
+.error .msg b{display:block;font-weight:600;color:#5F1F17;margin-bottom:2px}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+
+/* ═══ адаптив ═══ */
+@media (max-width:760px){
   .metrics{grid-template-columns:1fr}
-  .top{flex-direction:column;align-items:flex-start}
-  .presets{margin-left:0}
+  .masthead{flex-direction:column;align-items:flex-start}
+  .page{padding:var(--sp-5) var(--sp-4) var(--sp-7)}
+  .bars{height:56px}
+  th,td{padding-left:var(--sp-4);padding-right:var(--sp-4)}
+  .panel-head{flex-wrap:wrap;align-items:flex-start}
+  .actions{width:100%;justify-content:flex-start;flex-wrap:wrap}
+  .pulse-top{flex-direction:column;gap:var(--sp-2)}
 }
 
-/* ---------- разметка самого макета (в проде этого нет) ---------- */
-.note{max-width:1060px;margin:0 auto;padding:0 var(--sp-5)}
-.note h3{font-size:13px;trec-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);
-         margin:var(--sp-6) 0 var(--sp-2)}
-.note ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:14px;max-width:70ch}
-.note li{margin-bottom:6px}
-.divider{max-width:1060px;margin:var(--sp-6) auto 0;padding:0 var(--sp-5)}
-.divider hr{border:0;border-top:1px dashed var(--line)}
-.variant{max-width:1060px;margin:0 auto;padding:var(--sp-4) var(--sp-5) 0}
-.variant .card{margin-bottom:var(--sp-3)}
+/* ═══ пояснения к макету (в проде их нет) ═══ */
+.legend{border-top:1px dashed var(--line-strong);margin-top:var(--sp-8);padding-top:var(--sp-5)}
+.legend h2{font:700 18px var(--display);letter-spacing:-.02em;margin:0 0 var(--sp-4)}
+.legend h3{font:600 var(--t-label) var(--ui);letter-spacing:.12em;trec-transform:uppercase;
+           color:var(--ink-3);margin:var(--sp-5) 0 var(--sp-2)}
+.legend ul{margin:0;padding-left:20px;max-width:72ch}
+.legend li{margin-bottom:var(--sp-2);color:var(--ink-2);font-size:var(--t-small)}
+.legend li b{color:var(--ink);font-weight:600}
+.legend code{font-family:var(--num);font-size:12px;background:var(--sunken);padding:1px 5px;border-radius:4px}
+.section-label{
+  font:600 var(--t-label) var(--ui);letter-spacing:.12em;trec-transform:uppercase;
+  color:var(--ink-3);margin:var(--sp-6) 0 var(--sp-2);
+}
 </style>
 </head>
 <body>
-
 <div class="page">
-  <div class="top">
+
+  <div class="masthead">
     <div>
       <h1>Скоринг</h1>
-      <p class="sub">Суточная сводка по аккаунтам · очередь: 12 в ожидании, 4 128 обработано</p>
+      <p class="meta">Сводка по аккаунтам · очередь: <b class="num">12</b> в ожидании, <b class="num">4 128</b> обработано</p>
     </div>
-    <div class="who">
-      <label for="analyst" style="trec-transform:none;letter-spacing:0;font-size:13px;color:var(--ink-2)">Аналитик</label>
-      <select id="analyst"><option>Аида Сарсенова</option><option>Ержан Мукашев</option></select>
+    <div style="display:flex;gap:var(--sp-4);align-items:center;flex-wrap:wrap">
+      <div class="daynav">
+        <button type="button" aria-label="Предыдущий день">‹</button>
+        <span class="current tnum">4 марта 2025</span>
+        <button type="button" aria-label="Следующий день">›</button>
+      </div>
+      <div class="who">
+        <label for="analyst">Аналитик</label>
+        <select id="analyst"><option>Аида Сарсенова</option><option>Ержан Мукашев</option></select>
+      </div>
     </div>
   </div>
 
-  <div class="filters">
-    <div class="field">
-      <label for="day">Дата</label>
-      <input id="day" type="date" value="2025-03-04">
+  <!-- СИГНАТУРА: суточный ритм системы -->
+  <section class="pulse">
+    <div class="pulse-top">
+      <p class="eyebrow">Пульс суток</p>
+      <p class="pulse-note">Утренний пик <b class="num">08:00–08:20</b> · <b class="num">11 842</b> события · обработано полностью</p>
     </div>
-    <div class="presets">
-      <button class="chip" aria-pressed="true">Сегодня</button>
-      <button class="chip" aria-pressed="false">Вчера</button>
-      <button class="chip" aria-pressed="false">7 дней</button>
-      <button class="btn ghost">Экспорт</button>
-    </div>
-  </div>
+      <div class="bars">
+        <div class="bar" style="height:14%;animation-delay:0ms"></div>
+        <div class="bar" style="height:11%;animation-delay:12ms"></div>
+        <div class="bar" style="height:10%;animation-delay:24ms"></div>
+        <div class="bar" style="height:10%;animation-delay:36ms"></div>
+        <div class="bar" style="height:15%;animation-delay:48ms"></div>
+        <div class="bar" style="height:26%;animation-delay:60ms"></div>
+        <div class="bar" style="height:44%;animation-delay:72ms"></div>
+        <div class="bar" style="height:68%;animation-delay:84ms"></div>
+        <div class="bar peak" style="height:100%;animation-delay:96ms"></div>
+        <div class="bar" style="height:74%;animation-delay:108ms"></div>
+        <div class="bar" style="height:55%;animation-delay:120ms"></div>
+        <div class="bar" style="height:49%;animation-delay:132ms"></div>
+        <div class="bar" style="height:44%;animation-delay:144ms"></div>
+        <div class="bar" style="height:47%;animation-delay:156ms"></div>
+        <div class="bar now" style="height:41%;animation-delay:168ms"></div>
+        <div class="bar" style="height:30%;animation-delay:180ms"></div>
+        <div class="bar" style="height:24%;animation-delay:192ms"></div>
+        <div class="bar" style="height:20%;animation-delay:204ms"></div>
+        <div class="bar" style="height:17%;animation-delay:216ms"></div>
+        <div class="bar" style="height:15%;animation-delay:228ms"></div>
+        <div class="bar" style="height:13%;animation-delay:240ms"></div>
+        <div class="bar" style="height:12%;animation-delay:252ms"></div>
+        <div class="bar" style="height:11%;animation-delay:264ms"></div>
+        <div class="bar" style="height:10%;animation-delay:276ms"></div>
+      </div>
+    <div class="hours"><span class="num">00</span><span class="num">06</span><span class="num">12</span><span class="num">18</span><span class="num">23</span></div>
+  </section>
 
   <div class="metrics">
-    <div class="metric"><span class="k">Сумма</span><span class="v">30 861 375 ₸</span><span class="d up">+12,4% ко вчера</span></div>
-    <div class="metric"><span class="k">События</span><span class="v">1 284</span><span class="d">в среднем 53 в час</span></div>
-    <div class="metric"><span class="k">Аккаунты</span><span class="v">18</span><span class="d">из 40 активных</span></div>
+    <div class="metric">
+      <span class="k eyebrow">Сумма</span>
+      <span class="v">30 861 375<small>₸</small></span>
+      <span class="delta up"><span class="arrow">▲</span><span class="num">12,4%</span><span class="vs">ко вчера</span></span>
+    </div>
+    <div class="metric">
+      <span class="k eyebrow">События</span>
+      <span class="v">1 284</span>
+      <span class="delta up"><span class="arrow">▲</span><span class="num">3,1%</span><span class="vs">ко вчера</span></span>
+    </div>
+    <div class="metric">
+      <span class="k eyebrow">Средний скор</span>
+      <span class="v">0,642</span>
+      <span class="delta down"><span class="arrow">▼</span><span class="num">0,031</span><span class="vs">ко вчера</span></span>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="card-head"><h2>По аккаунтам</h2><span style="font-size:13px;color:var(--ink-3)">18 строк</span></div>
-    <div class="tw">
+  <section class="panel">
+    <div class="panel-head">
+      <div style="display:flex;align-items:baseline;gap:var(--sp-3)">
+        <p class="eyebrow">По аккаунтам</p>
+        <span class="count tnum">18 строк</span>
+      </div>
+      <div class="actions">
+        <button class="chip" type="button" aria-pressed="true">По сумме</button>
+        <button class="chip" type="button" aria-pressed="false">По скору</button>
+        <button class="btn" type="button">Экспорт</button>
+      </div>
+    </div>
+    <div class="scroller">
       <table>
-        <thead><tr>
-          <th>Аккаунт</th><th class="num">События</th><th class="num">Сумма, ₸</th><th class="num">Средний скор</th>
-        </tr></thead>
+        <thead>
+          <tr><th></th><th>Аккаунт</th><th class="r">События</th><th class="r">Сумма, ₸</th><th class="r">Средний скор</th></tr>
+        </thead>
         <tbody>
-          <tr><td class="acc">Аккаунт 07<small>cst-0007</small></td><td class="num">142</td><td class="num">4 812 300,50</td><td class="num"><span class="score hi">0,842</span></td></tr>
-          <tr><td class="acc">Аккаунт 12<small>cst-0012</small></td><td class="num">98</td><td class="num">3 204 118,00</td><td class="num"><span class="score hi">0,781</span></td></tr>
-          <tr><td class="acc">Аккаунт 03<small>cst-0003</small></td><td class="num">87</td><td class="num">2 998 640,25</td><td class="num"><span class="score">0,644</span></td></tr>
-          <tr><td class="acc">Аккаунт 21<small>cst-0021</small></td><td class="num">64</td><td class="num">1 750 000,00</td><td class="num"><span class="score">0,512</span></td></tr>
-          <tr><td class="acc">Аккаунт 30<small>cst-0030</small></td><td class="num">9</td><td class="num">88 402,10</td><td class="num"><span class="score">0,301</span></td></tr>
+          <tr>
+            <td class="rank">1</td>
+            <td class="acc">Аккаунт 07<small>cst-0007</small></td>
+            <td class="n r">142</td><td class="n r">4 812 300,50</td>
+            <td class="r"><span class="score high"><span class="track"><span class="fill" style="width:84%"></span></span><span class="val">0,842</span></span></td>
+          </tr>
+          <tr>
+            <td class="rank">2</td>
+            <td class="acc">Аккаунт 12<small>cst-0012</small></td>
+            <td class="n r">98</td><td class="n r">3 204 118,00</td>
+            <td class="r"><span class="score high"><span class="track"><span class="fill" style="width:78%"></span></span><span class="val">0,781</span></span></td>
+          </tr>
+          <tr>
+            <td class="rank">3</td>
+            <td class="acc">Аккаунт 03<small>cst-0003</small></td>
+            <td class="n r">87</td><td class="n r">2 998 640,25</td>
+            <td class="r"><span class="score"><span class="track"><span class="fill" style="width:64%"></span></span><span class="val">0,644</span></span></td>
+          </tr>
+          <tr>
+            <td class="rank">4</td>
+            <td class="acc">Аккаунт 21<small>cst-0021</small></td>
+            <td class="n r">64</td><td class="n r">1 750 000,00</td>
+            <td class="r"><span class="score"><span class="track"><span class="fill" style="width:51%"></span></span><span class="val">0,512</span></span></td>
+          </tr>
+          <tr>
+            <td class="rank">5</td>
+            <td class="acc">Аккаунт 30<small>cst-0030</small></td>
+            <td class="n r">9</td><td class="n r">88 402,10</td>
+            <td class="r"><span class="score"><span class="track"><span class="fill" style="width:30%"></span></span><span class="val">0,301</span></span></td>
+          </tr>
         </tbody>
       </table>
     </div>
-  </div>
-</div>
+  </section>
 
-<div class="divider"><hr></div>
+  <p class="section-label">Состояние: загрузка</p>
+  <section class="panel">
+    <div class="panel-head"><p class="eyebrow">По аккаунтам</p></div>
+    <div class="skel-row"><span class="skel w1"></span><span class="skel w2"></span><span class="skel w3"></span><span class="skel w4"></span></div>
+    <div class="skel-row"><span class="skel w1"></span><span class="skel w2"></span><span class="skel w3"></span><span class="skel w4"></span></div>
+    <div class="skel-row" style="border-bottom:0"><span class="skel w1"></span><span class="skel w2"></span><span class="skel w3"></span><span class="skel w4"></span></div>
+  </section>
 
-<div class="variant">
-  <h3 style="font-size:13px;trec-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:24px 0 8px">Состояние: загрузка</h3>
-  <div class="card">
-    <div class="card-head"><h2>По аккаунтам</h2></div>
-    <div style="padding:16px">
-      <div class="skeleton" style="width:100%;margin-bottom:12px"></div>
-      <div class="skeleton" style="width:82%;margin-bottom:12px"></div>
-      <div class="skeleton" style="width:64%"></div>
+  <p class="section-label">Состояние: пусто</p>
+  <section class="panel">
+    <div class="panel-head"><p class="eyebrow">По аккаунтам</p></div>
+    <div class="state">
+      <b>За 4 марта событий не было</b>
+      <p>Выберите другой день или проверьте очередь — если в ней есть необработанные события, отчёт появится после их обработки.</p>
     </div>
+  </section>
+
+  <p class="section-label">Состояние: ошибка</p>
+  <section class="panel">
+    <div class="panel-head"><p class="eyebrow">По аккаунтам</p></div>
+    <div class="error">
+      <span class="msg"><b>Не удалось загрузить отчёт</b>Сервис ответил 503. Данные не потеряны, попробуйте ещё раз.</span>
+      <button class="btn ghost" type="button">Повторить</button>
+    </div>
+  </section>
+
+  <div class="legend">
+    <h2>Что в этом макете важно</h2>
+
+    <h3>Обязательно</h3>
+    <ul>
+      <li><b>Все числа моноширинные и выровнены вправо</b> — <code>font-variant-numeric: tabular-nums</code>. Колонка цифр должна читаться сверху вниз.</li>
+      <li><b>Единый формат.</b> Суммы — разделитель тысяч неразрывным пробелом и всегда две цифры после запятой. Скор — всегда три знака. Никаких <code>0.8980071428571429</code>.</li>
+      <li><b>Три состояния списка:</b> загрузка, пусто, ошибка. У ошибки — что случилось, что с данными и кнопка повтора.</li>
+      <li><b>Цвет никогда не единственный носитель смысла.</b> У дельты есть стрелка и число, у скора — длина полосы и число.</li>
+      <li><b>Цвета, отступы и гарнитуры — только из токенов</b> в <code>:root</code>. Магических чисел в компонентах быть не должно.</li>
+      <li><b>Клавиатура:</b> у всего интерактивного видимый <code>:focus-visible</code>, у кнопок-стрелок — <code>aria-label</code>.</li>
+      <li><b>Адаптив:</b> на 375px метрики встают в колонку, таблица скроллится внутри себя, страница по горизонтали — нет.</li>
+      <li><b>Экспорт отчёта</b> — кнопка в шапке списка.</li>
+    </ul>
+
+    <h3>По возможности</h3>
+    <ul>
+      <li><b>Пульс суток</b> — 24 столбика по часам, тёмный пик и акцентная метка текущего часа. Это главный элемент макета: аналитик по нему сразу видит, прошла ли утренняя выгрузка.</li>
+      <li><b>Полоса скора</b> в строке таблицы.</li>
+      <li><b>Появление столбиков</b> каскадом при загрузке — и обязательно выключено при <code>prefers-reduced-motion</code>.</li>
+    </ul>
+
+    <h3>Не требуется</h3>
+    <ul>
+      <li>Тёмная тема, графики-библиотеки, анимации сверх перечисленного.</li>
+      <li>Пиксельное совпадение. Мы смотрим, что вы сочли важным и как это сделали.</li>
+    </ul>
   </div>
 
-  <h3 style="font-size:13px;trec-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:24px 0 8px">Состояние: пусто</h3>
-  <div class="card">
-    <div class="card-head"><h2>По аккаунтам</h2></div>
-    <div class="state"><b>За выбранные сутки данных нет</b>Попробуйте другую дату или проверьте, дошли ли события до очереди.</div>
-  </div>
-
-  <h3 style="font-size:13px;trec-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:24px 0 8px">Состояние: ошибка</h3>
-  <div class="card">
-    <div class="card-head"><h2>По аккаунтам</h2></div>
-    <div class="err"><span>Не удалось загрузить отчёт: 503 Service Unavailable</span><button class="btn">Повторить</button></div>
-  </div>
 </div>
-
-<div class="note">
-  <h3>Что важно в этом макете</h3>
-  <ul>
-    <li><b>Цифры выровнены вправо и моноширинные</b> (<code>font-variant-numeric: tabular-nums</code>) — колонки должны читаться сверху вниз.</li>
-    <li><b>Три состояния обязательны:</b> загрузка, пусто, ошибка. У ошибки — текст причины и кнопка повтора.</li>
-    <li><b>Все цвета, отступы и шрифты — из токенов</b> в <code>:root</code>. Магических чисел в компонентах быть не должно.</li>
-    <li><b>Суммы в одном формате:</b> разделитель тысяч — неразрывный пробел, копейки всегда двумя знаками.</li>
-    <li><b>Клавиатура:</b> у всего интерактивного видимый <code>:focus-visible</code>, у кнопок-иконок — доступное имя.</li>
-    <li><b>Адаптив:</b> на ширине 375px метрики встают в колонку, таблица скроллится горизонтально, страница — нет.</li>
-  </ul>
-</div>
-
 </body>
 </html>
