@@ -4,6 +4,7 @@ scoring.db
 *.sqlite3
 node_modules/
 dist/
+.runtime/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
