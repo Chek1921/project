@@ -5,11 +5,12 @@ python scripts/seed_data.py [--events 500]
 import argparse
 import random
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 sys.path.insert(0, ".")
 
 from api.db import init_db, session  # noqa: E402
+from api.time_utils import utc_now  # noqa: E402
 
 USERS = [("u-101", "Аида", "analyst"), ("u-102", "Ержан", "analyst"), ("u-900", "Админ", "admin")]
 SOURCES = ["crm", "partner_csv", "webform"]
@@ -36,7 +37,7 @@ def main() -> None:
             accounts,
         )
 
-        now = datetime.utcnow()
+        now = utc_now()
         for i in range(args.events):
             acc = accounts[rnd.randrange(len(accounts))][0]
             created = now - timedelta(minutes=rnd.randrange(0, 60 * 72))

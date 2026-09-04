@@ -1,19 +1,18 @@
 """Суточные отчёты для аналитиков."""
-from datetime import date, datetime, time, timedelta
+from datetime import date, timedelta
 
 from api.db import session
+from api.time_utils import utc_day_bounds, utc_today
 
 
 def _day_bounds(day: date) -> tuple[str, str]:
     """Границы суток для запроса. В базе лежит ISO-строка, сравниваем лексикографически."""
-    start = datetime.combine(day, time.min)
-    end = start + timedelta(days=1)
-    return start.isoformat(), end.isoformat()
+    return utc_day_bounds(day)
 
 
 def daily_report(user_id: str, day: date | None = None, db_path: str | None = None) -> dict:
     """Сводка по всем аккаунтам пользователя за сутки."""
-    day = day or datetime.now().date()
+    day = day or utc_today()
     start, end = _day_bounds(day)
 
     with session(db_path) as conn:
