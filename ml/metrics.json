@@ -3,7 +3,7 @@
   "pr_auc": 0.9635,
   "n_train": 4500,
   "n_test": 1500,
-  "trained_at": "2025-03-05T09:12:44.318907",
+  "trained_at": "2026-09-01T11:23:52.180264",
   "feature_importance": {
     "hours_to_status_change": 0.969,
     "account_conv_rate": 0.016,
