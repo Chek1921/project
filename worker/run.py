@@ -8,11 +8,19 @@ import threading
 import time
 
 from worker.processor import process_one
+from worker.queue import recover_stale
+
+RECOVERY_INTERVAL_SECONDS = 60
 
 
 def loop(worker_id: str, idle_sleep: float = 0.5, max_tasks: int | None = None) -> int:
     done = 0
+    next_recovery = 0.0
     while max_tasks is None or done < max_tasks:
+        now = time.monotonic()
+        if now >= next_recovery:
+            recover_stale()
+            next_recovery = now + RECOVERY_INTERVAL_SECONDS
         if process_one(worker_id):
             done += 1
         else:
