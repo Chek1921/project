@@ -1,8 +1,8 @@
 import React from 'react'
 const number = new Intl.NumberFormat('ru-RU'), money = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-export default function ReportTable({ items, state, day, onRetry }) {
+export default function ReportTable({ items, state, day, error, onRetry }) {
   if (state === 'loading') return <div className="loading" aria-label="Загрузка отчёта">{[1, 2, 3].map((row) => <div className="skeleton" key={row}><i /><i /><i /><i /></div>)}</div>
-  if (state === 'error') return <div className="error" role="alert"><div><b>Не удалось загрузить отчёт</b><span>Данные не потеряны. Проверьте соединение и попробуйте ещё раз.</span></div><button className="btn ghost" type="button" onClick={onRetry}>Повторить</button></div>
+  if (state === 'error') return <div className="error" role="alert"><div><b>Не удалось загрузить отчёт</b><span>{error || 'Ошибка соединения'}. Данные не потеряны, попробуйте ещё раз.</span></div><button className="btn ghost" type="button" onClick={onRetry}>Повторить</button></div>
   if (!items.length) return <div className="empty"><b>За {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date(`${day}T12:00:00`))} событий не было</b><span>Выберите другой день или проверьте очередь.</span></div>
   return <div className="scroller"><table><thead><tr><th>#</th><th>Аккаунт</th><th>События</th><th>Сумма, ₸</th><th>Средний скор</th></tr></thead><tbody>{items.map((row, index) => { const score = Number(row.avg_score || 0); return <tr key={row.account_id}><td className="rank">{index + 1}</td><td className="account">{row.account_name || row.account_id}<small>{row.account_id}</small></td><td className="num">{number.format(row.events)}</td><td className="num">{money.format(row.amount || 0)}</td><td><span className="score"><i><i style={{ width: `${Math.max(0, Math.min(score, 1)) * 100}%` }} /></i><span className="num">{score.toFixed(3).replace('.', ',')}</span></span></td></tr> })}</tbody></table></div>
 }

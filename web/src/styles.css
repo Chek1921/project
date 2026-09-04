@@ -40,9 +40,9 @@ h1 { margin: 4px 0 0; font: 700 clamp(26px, 3.4vw, 34px)/1 var(--display); lette
 .pulse { margin-bottom: 16px; padding: 16px 24px; }
 .pulseTop { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--muted); font-size: 13px; }
 .bars { display: flex; align-items: end; gap: 3px; height: 104px; }
-.bars i { flex: 1; min-height: 3px; border-radius: 2px 2px 0 0; background: var(--sunken); }
-.bars i.peak { background: var(--ink); }
-.bars i.now { background: var(--accent); }
+.bar { flex: 1; min-height: 3px; height: var(--bar-height); border-radius: 2px 2px 0 0; background: var(--sunken); transform-origin: bottom; }
+.bar.peak { background: var(--ink); }
+.bar.now { background: var(--accent); }
 .hours { display: flex; justify-content: space-between; margin-top: 8px; color: var(--faint); font: 11px var(--num); }
 
 .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -79,6 +79,7 @@ tbody tr:hover { background: var(--sunken); }
 .skeleton i:nth-child(2) { max-width: 80px; }
 .skeleton i:nth-child(3) { max-width: 150px; }
 @keyframes shimmer { to { background-position: 300% 0; } }
+@media (prefers-reduced-motion: no-preference) { .bar { animation: rise .5s cubic-bezier(.2, .7, .3, 1) var(--bar-delay) backwards; } @keyframes rise { from { opacity: .4; transform: scaleY(.04); } } }
 .empty b, .empty span, .error b, .error span { display: block; }
 .empty span, .error span { margin-top: 6px; color: var(--muted); font-size: 13px; }
 .error { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; border-left: 3px solid var(--negative); background: #fcf4f3; }
