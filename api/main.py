@@ -1,13 +1,14 @@
 """HTTP-слой сервиса скоринга."""
-from datetime import date, datetime
+from datetime import date
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
 from api.auth import User, get_current_user
 from api.db import init_db, session
-from api.ingest import store_event
+from api.ingest import UnknownAccountError, store_event
 from api.reporting import daily_report, hourly_activity, range_report
+from api.time_utils import utc_now_iso
 from ml.predict import score_event
 
 app = FastAPI(title="Scoring Service", version="3.0.1")
@@ -36,7 +37,10 @@ def health() -> dict:
 @app.post("/ingest")
 def ingest(payload: IngestPayload) -> dict:
     """Приём события. Источники: crm, partner_csv, webform."""
-    return store_event(payload.model_dump())
+    try:
+        return store_event(payload.model_dump())
+    except UnknownAccountError as exc:
+        raise HTTPException(status_code=422, detail="unknown account_id") from exc
 
 
 @app.post("/score/{event_id}")
@@ -58,7 +62,7 @@ def rescore(event_id: int, user: User = Depends(get_current_user)) -> dict:
                 score,
                 row["amount"],
                 "manual",
-                datetime.utcnow().isoformat(),
+                utc_now_iso(),
             ),
         )
     return {"event_id": event_id, "score": score}

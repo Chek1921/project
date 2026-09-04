@@ -11,7 +11,7 @@ def test_health_ok():
     assert resp.json()["status"] == "ok"
 
 
-def test_ingest_accepts_event():
+def test_ingest_accepts_event(account):
     resp = client.post(
         "/ingest",
         json={
@@ -25,7 +25,7 @@ def test_ingest_accepts_event():
     assert resp.json()["status"] == "accepted"
 
 
-def test_ingest_duplicate_is_skipped():
+def test_ingest_duplicate_is_skipped(account):
     payload = {
         "source": "crm",
         "external_id": "rec-dup",

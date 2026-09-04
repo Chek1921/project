@@ -53,6 +53,11 @@ CREATE INDEX IF NOT EXISTS idx_queue_status    ON queue(status);
 CREATE INDEX IF NOT EXISTS idx_scores_acc      ON scores(account_id);
 """
 
+EVENT_IDENTITY_INDEX = """
+CREATE UNIQUE INDEX IF NOT EXISTS uq_events_source_external
+    ON events(source, external_id)
+"""
+
 
 def connect(path: str | None = None) -> sqlite3.Connection:
     conn = sqlite3.connect(path or DB_PATH, timeout=30)
@@ -73,3 +78,10 @@ def session(path: str | None = None):
 def init_db(path: str | None = None) -> None:
     with session(path) as conn:
         conn.executescript(SCHEMA)
+        try:
+            conn.execute(EVENT_IDENTITY_INDEX)
+        except sqlite3.IntegrityError as exc:
+            raise RuntimeError(
+                "cannot enforce event identity: duplicate (source, external_id) "
+                "rows already exist; reconcile them before startup"
+            ) from exc
