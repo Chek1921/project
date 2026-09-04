@@ -8,4 +8,3 @@ async function request(path, options = {}) {
 export const fetchReport = (userId, day) => request(`/report?${new URLSearchParams({ user_id: userId, day })}`)
 export const fetchActivity = (userId, day) => request(`/report/activity?${new URLSearchParams({ user_id: userId, day })}`)
 export const fetchQueueStats = () => request('/queue/stats')
-export const createEvent = (event) => request('/ingest', { method: 'POST', body: JSON.stringify(event) })

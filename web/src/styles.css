@@ -53,7 +53,7 @@ h1 { margin: 4px 0 0; font: 700 clamp(26px, 3.4vw, 34px)/1 var(--display); lette
 .analyst { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 11px; }
 .analyst input { width: 104px; padding: 0 8px; }
 
-.pulse, .guide, .metric, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.pulse, .metric, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 .pulse { margin-bottom: 16px; padding: 16px 24px; }
 .pulseTop { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-4); color: var(--muted); font-size: 13px; }
 .pulseNote b { color: var(--ink); font-weight: 600; }
@@ -112,14 +112,6 @@ tbody tr:hover { background: var(--sunken); }
 .error { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; border-left: 3px solid var(--negative); background: var(--error-soft); }
 .error b { color: var(--error-ink); }
 
-.guide { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 24px; margin-top: 16px; padding: 20px 24px; }
-.guide h2 { margin: 5px 0 8px; font: 700 20px/1.2 var(--display); letter-spacing: -.02em; }
-.guide p { max-width: 62ch; margin: 0; color: var(--muted); }
-.guide form { display: grid; gap: 8px; min-width: 230px; }
-.guide label { color: var(--muted); font-size: 12px; }
-.guide input { display: block; width: 100%; margin-top: 4px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
-.formStatus { min-height: 20px; color: var(--positive); font-size: 12px; }
-
 @media (max-width: 760px) {
   .page { padding: 24px 16px 48px; }
   .masthead { align-items: start; flex-direction: column; }
@@ -129,11 +121,9 @@ tbody tr:hover { background: var(--sunken); }
   .analyst { width: 100%; }
   .analyst input { width: 100%; }
   .metrics { grid-template-columns: 1fr; }
-  .pulse, .guide { padding: 16px; }
+  .pulse { padding: 16px; }
   .pulseTop { flex-direction: column; }
   .bars { height: 64px; }
-  .guide { grid-template-columns: 1fr; }
-  .guide form { min-width: 0; }
   .panelHead { align-items: start; }
   .actions { width: 100%; flex-wrap: wrap; }
   th, td { padding-left: 16px; padding-right: 16px; }
