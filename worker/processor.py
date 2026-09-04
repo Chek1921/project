@@ -1,10 +1,10 @@
 """Обработка одной задачи из очереди."""
-from datetime import datetime
 
 from api.db import session
+from api.time_utils import utc_now_iso
 from ml.predict import score_event
 from worker.external import enrich
-from worker.queue import claim_next, mark_done, mark_failed
+from worker.queue import claim_next, mark_failed
 
 MODEL_VERSION = "gbm-v7"
 
@@ -15,21 +15,32 @@ def load_event(event_id: int, db_path: str | None = None) -> dict | None:
     return dict(row) if row else None
 
 
+def _insert_score(conn, event: dict, score: float, processed_at: str) -> None:
+    conn.execute(
+        """INSERT INTO scores (event_id, account_id, score, amount,
+                               model_version, processed_at)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (event["id"], event["account_id"], score, event["amount"], MODEL_VERSION, processed_at),
+    )
+
+
 def save_score(event: dict, score: float, db_path: str | None = None) -> None:
     with session(db_path) as conn:
-        conn.execute(
-            """INSERT INTO scores (event_id, account_id, score, amount,
-                                   model_version, processed_at)
-               VALUES (?, ?, ?, ?, ?, ?)""",
-            (
-                event["id"],
-                event["account_id"],
-                score,
-                event["amount"],
-                MODEL_VERSION,
-                datetime.now().isoformat(),
-            ),
+        _insert_score(conn, event, score, utc_now_iso())
+
+
+def complete_task(event: dict, score: float, queue_id: int, db_path: str | None = None) -> None:
+    """Атомарно сохранить результат и завершить принадлежащую worker задачу."""
+    completed_at = utc_now_iso()
+    with session(db_path) as conn:
+        _insert_score(conn, event, score, completed_at)
+        result = conn.execute(
+            """UPDATE queue SET status = 'done', updated_at = ?
+                 WHERE id = ? AND status = 'processing'""",
+            (completed_at, queue_id),
         )
+        if result.rowcount != 1:
+            raise RuntimeError(f"queue task {queue_id} is not processing")
 
 
 def process_one(worker_id: str = "w-1", db_path: str | None = None) -> bool:
@@ -46,8 +57,7 @@ def process_one(worker_id: str = "w-1", db_path: str | None = None) -> bool:
 
         enriched = enrich(event)
         score = score_event(enriched)
-        save_score(event, score, db_path)
-        mark_done(task["queue_id"], db_path)
+        complete_task(event, score, task["queue_id"], db_path)
     except Exception as exc:  # noqa: BLE001
         print(f"[{worker_id}] task {task['queue_id']} failed: {exc}")
         mark_failed(task["queue_id"], db_path)
