@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from api.db import session
-from api.reporting import daily_report
+from api.reporting import daily_report, hourly_activity
 
 
 def _insert_score(account_id: str, amount: float, when: datetime, score: float = 0.5):
@@ -33,3 +33,17 @@ def test_report_is_empty_for_other_user(account):
 
     assert report["total_events"] == 0
     assert report["items"] == []
+
+
+def test_hourly_activity_groups_scores_by_utc_hour(account):
+    day = datetime(2026, 9, 4)
+    _insert_score(account["id"], 100, day.replace(hour=8, minute=5))
+    _insert_score(account["id"], 100, day.replace(hour=8, minute=50))
+    _insert_score(account["id"], 100, day.replace(hour=15))
+
+    activity = hourly_activity(account["owner"], day.date())
+
+    assert len(activity) == 24
+    assert activity[8] == 2
+    assert activity[15] == 1
+    assert sum(activity) == 3

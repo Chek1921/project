@@ -1,30 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Filters from './components/Filters.jsx'
 import ReportTable from './components/ReportTable.jsx'
-import { fetchQueueStats, fetchReport, currentUserId } from './api.js'
+import { createEvent, fetchActivity, fetchQueueStats, fetchReport, currentUserId } from './api.js'
 
 const number = new Intl.NumberFormat('ru-RU')
 const money = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const localDay = (date = new Date()) => new Date(date - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 10)
-const changeDay = (day, amount) => { const date = new Date(`${day}T12:00:00`); date.setDate(date.getDate() + amount); return localDay(date) }
+const changeDay = (day, shift) => { const next = new Date(`${day}T12:00:00`); next.setDate(next.getDate() + shift); return localDay(next) }
 
 export default function App() {
-  const [userId, setUserId] = useState(currentUserId()), [day, setDay] = useState(localDay()), [report, setReport] = useState(null), [queue, setQueue] = useState({}), [state, setState] = useState('loading'), [sort, setSort] = useState('amount'), [reload, setReload] = useState(0)
+  const [userId, setUserId] = useState(currentUserId()), [day, setDay] = useState(localDay()), [report, setReport] = useState(null), [activity, setActivity] = useState([]), [queue, setQueue] = useState({}), [state, setState] = useState('loading'), [sort, setSort] = useState('amount'), [reload, setReload] = useState(0)
   useEffect(() => {
     let active = true; setState('loading')
-    Promise.all([fetchReport(userId, day), fetchQueueStats()]).then(([nextReport, nextQueue]) => { if (active) { setReport(nextReport); setQueue(nextQueue); setState('ready') } }).catch(() => active && setState('error'))
+    Promise.all([fetchReport(userId, day), fetchActivity(userId, day), fetchQueueStats()]).then(([nextReport, nextActivity, nextQueue]) => { if (active) { setReport(nextReport); setActivity(nextActivity.hours); setQueue(nextQueue); setState('ready') } }).catch(() => active && setState('error'))
     return () => { active = false }
   }, [userId, day, reload])
   const items = useMemo(() => [...(report?.items || [])].sort((a, b) => sort === 'amount' ? Number(b.amount) - Number(a.amount) : Number(b.avg_score) - Number(a.avg_score)), [report, sort])
   const average = report?.total_events ? items.reduce((sum, item) => sum + Number(item.avg_score) * item.events, 0) / report.total_events : 0
-  const exportReport = () => {
-    const rows = [['Аккаунт', 'События', 'Сумма, ₸', 'Средний скор'], ...items.map((row) => [row.account_name || row.account_id, row.events, Number(row.amount).toFixed(2), Number(row.avg_score).toFixed(3)])]
-    const data = '\uFEFF' + rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(';')).join('\n'), link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([data], { type: 'text/csv;charset=utf-8' })), download: `scoring-${day}.csv` })
-    link.click(); URL.revokeObjectURL(link.href)
-  }
-  return <main className="page"><header className="masthead"><div><h1>Скоринг</h1><p className="meta">Сводка по аккаунтам · очередь: <b className="num">{number.format(queue.pending || 0)}</b> в ожидании, <b className="num">{number.format(queue.done || 0)}</b> обработано</p></div><Filters userId={userId} onUserId={setUserId} day={day} onDay={setDay} onPrevious={() => setDay(changeDay(day, -1))} onNext={() => setDay(changeDay(day, 1))} /></header>
+  const exportReport = () => { const rows = [['Аккаунт', 'События', 'Сумма, ₸', 'Средний скор'], ...items.map((row) => [row.account_name || row.account_id, row.events, Number(row.amount).toFixed(2), Number(row.avg_score).toFixed(3)])], data = '\uFEFF' + rows.map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(';')).join('\n'), link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([data], { type: 'text/csv;charset=utf-8' })), download: `scoring-${day}.csv` }); link.click(); URL.revokeObjectURL(link.href) }
+  return <main className="page"><header className="masthead"><div><p className="eyebrow">Analytics / lead scoring</p><h1>Скоринг</h1><p className="meta">Сводка по аккаунтам · очередь: <b className="num">{number.format(queue.pending || 0)}</b> в ожидании, <b className="num">{number.format(queue.done || 0)}</b> обработано</p></div><Filters userId={userId} onUserId={setUserId} day={day} onDay={setDay} onPrevious={() => setDay(changeDay(day, -1))} onNext={() => setDay(changeDay(day, 1))} /></header>
+    <Pulse activity={activity} />
     <section className="metrics" aria-label="Ключевые показатели"><Metric label="Сумма" value={`${money.format(report?.total_amount || 0)} ₸`} /><Metric label="События" value={number.format(report?.total_events || 0)} /><Metric label="Средний скор" value={average.toFixed(3).replace('.', ',')} /></section>
     <section className="panel"><div className="panelHead"><div><p className="eyebrow">По аккаунтам</p><span className="count">{number.format(items.length)} строк</span></div><div className="actions"><button className="chip" type="button" aria-pressed={sort === 'amount'} onClick={() => setSort('amount')}>По сумме</button><button className="chip" type="button" aria-pressed={sort === 'score'} onClick={() => setSort('score')}>По скору</button><button className="btn" type="button" disabled={!items.length} onClick={exportReport}>Экспорт CSV</button></div></div><ReportTable items={items} state={state} day={day} onRetry={() => setReload((value) => value + 1)} /></section>
+    <IngestForm onAccepted={() => setTimeout(() => setReload((value) => value + 1), 1000)} />
   </main>
 }
 function Metric({ label, value }) { return <div className="metric"><span className="eyebrow">{label}</span><strong className="num">{value}</strong></div> }
+function Pulse({ activity }) { const max = Math.max(...activity, 1), peak = activity.indexOf(max), now = new Date().getHours(); return <section className="pulse"><div className="pulseTop"><p className="eyebrow">Пульс суток</p><span>События, обработанные по часам UTC</span></div><div className="bars" aria-label="Почасовая активность">{Array.from({ length: 24 }, (_, hour) => <i className={`${hour === peak && activity[hour] ? 'peak ' : ''}${hour === now ? 'now' : ''}`} style={{ height: `${Math.max(activity[hour] ? 8 : 3, activity[hour] / max * 100)}%` }} key={hour} title={`${hour}:00 — ${activity[hour] || 0} событий`} />)}</div><div className="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div></section> }
+function IngestForm({ onAccepted }) { const [amount, setAmount] = useState('10000'), [status, setStatus] = useState(''); const submit = (event) => { event.preventDefault(); setStatus('Отправляем…'); createEvent({ source: 'dashboard_demo', external_id: crypto.randomUUID(), account_id: 'cst-0000', amount, currency: 'KZT' }).then(() => { setStatus('Принято: воркер посчитает score примерно за секунду.'); onAccepted() }).catch(() => setStatus('Не удалось отправить событие. Проверьте API.')) }; return <section className="guide"><div><p className="eyebrow">Как появляются данные</p><h2>CRM / партнёр → очередь → воркер → отчёт</h2><p>Воркеры берут новые задачи из SQLite, обогащают событие, рассчитывают score моделью и записывают его в отчёт. Это тестовая отправка для аккаунта cst-0000 аналитика u-101.</p></div><form onSubmit={submit}><label>Сумма тестового события, ₸<input value={amount} inputMode="decimal" onChange={(event) => setAmount(event.target.value)} required /></label><button className="btn" type="submit">Добавить событие</button><span className="formStatus" aria-live="polite">{status}</span></form></section> }

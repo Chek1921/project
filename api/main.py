@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from api.auth import User, get_current_user
 from api.db import init_db, session
 from api.ingest import store_event
-from api.reporting import daily_report, range_report
+from api.reporting import daily_report, hourly_activity, range_report
 from ml.predict import score_event
 
 app = FastAPI(title="Scoring Service", version="3.0.1")
@@ -72,6 +72,15 @@ def report(
 ) -> dict:
     """Суточная сводка по аккаунтам аналитика."""
     return daily_report(user_id, day)
+
+
+@app.get("/report/activity")
+def report_activity(
+    user_id: str,
+    day: date,
+    current: User = Depends(get_current_user),
+) -> dict:
+    return {"day": day.isoformat(), "hours": hourly_activity(user_id, day)}
 
 
 @app.get("/report/range")

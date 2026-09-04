@@ -43,6 +43,24 @@ def daily_report(user_id: str, day: date | None = None, db_path: str | None = No
     }
 
 
+def hourly_activity(user_id: str, day: date, db_path: str | None = None) -> list[int]:
+    """Количество посчитанных событий по часам UTC за день отчёта."""
+    start, end = _day_bounds(day)
+    with session(db_path) as conn:
+        rows = conn.execute(
+            """SELECT CAST(substr(s.processed_at, 12, 2) AS INTEGER) AS hour,
+                      COUNT(*) AS events
+                 FROM scores s JOIN accounts a ON a.id = s.account_id
+                WHERE a.owner_user_id = ? AND s.processed_at >= ? AND s.processed_at < ?
+             GROUP BY hour""",
+            (user_id, start, end),
+        ).fetchall()
+    result = [0] * 24
+    for row in rows:
+        result[row["hour"]] = row["events"]
+    return result
+
+
 def range_report(user_id: str, day_from: date, day_to: date, db_path: str | None = None) -> dict:
     """Тот же отчёт, но за несколько суток. Аналитики просили, сделали быстро."""
     days = []
