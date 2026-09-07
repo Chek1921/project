@@ -1,11 +1,13 @@
 """Наполнить локальную базу демо-данными.
 
 python scripts/seed_data.py [--events 500]
+Каждый запуск добавляет новые события и задачи в очередь.
 """
 import argparse
 import random
 import sys
 from datetime import timedelta
+from uuid import uuid4
 
 sys.path.insert(0, ".")
 
@@ -23,6 +25,7 @@ def main() -> None:
 
     init_db()
     rnd = random.Random(17)
+    batch_id = uuid4().hex
 
     with session() as conn:
         conn.executemany(
@@ -47,7 +50,7 @@ def main() -> None:
                    VALUES (?, ?, ?, ?, 'AMD', '{}', ?)""",
                 (
                     SOURCES[rnd.randrange(len(SOURCES))],
-                    f"rec-{i:06d}",
+                    f"rec-{batch_id}-{i:06d}",
                     acc,
                     round(rnd.uniform(1000, 900000), 2),
                     created.isoformat(),
