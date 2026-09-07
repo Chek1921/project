@@ -8,7 +8,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $runtimeDir = Join-Path $projectRoot '.runtime'
 $python = Join-Path $projectRoot 'venv\Scripts\python.exe'
 $services = @(
-  @{ Name = 'api'; Match = 'uvicorn api\.main:app'; File = $python; Args = @('-m', 'uvicorn', 'api.main:app', '--host', '127.0.0.1', '--port', '8010'); WorkDir = $projectRoot },
+  @{ Name = 'api'; Match = 'uvicorn api\.main:app'; File = $python; Args = @('-m', 'uvicorn', 'api.main:app', '--host', '127.0.0.1', '--port', '8010', '--reload', '--reload-dir', 'api'); WorkDir = $projectRoot },
   @{ Name = 'worker'; Match = 'worker\.run'; File = $python; Args = @('-m', 'worker.run', '--workers', '4'); WorkDir = $projectRoot },
   @{ Name = 'web'; Match = 'npm run dev'; File = $env:ComSpec; Args = @('/d', '/s', '/c', 'npm run dev -- --host 127.0.0.1'); WorkDir = (Join-Path $projectRoot 'web') }
 )

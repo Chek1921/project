@@ -99,6 +99,15 @@ def report_range(
     return range_report(user_id, day_from, day_to)
 
 
+@app.get("/analysts")
+def analysts(current: User = Depends(get_current_user)) -> list[dict]:
+    with session() as conn:
+        rows = conn.execute(
+            "SELECT id, name FROM users WHERE role = 'analyst' ORDER BY name, id"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
 @app.get("/accounts")
 def accounts(current: User = Depends(get_current_user)) -> list[dict]:
     with session() as conn:

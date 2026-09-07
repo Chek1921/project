@@ -29,12 +29,14 @@
   --ui: Manrope, system-ui, sans-serif;
   --display: "Instrument Sans", system-ui, sans-serif;
   --num: "IBM Plex Mono", ui-monospace, monospace;
+  --t-body: 14px;
+  --t-small: 13px;
 }
 
 * { box-sizing: border-box; }
 html { min-width: 320px; color-scheme: light; }
 body { margin: 0; overflow-x: hidden; background: var(--paper); color: var(--ink); font: 500 14px/1.5 var(--ui); -webkit-font-smoothing: antialiased; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--sp-1); }
 
@@ -46,12 +48,13 @@ h1 { margin: 4px 0 0; font: 700 clamp(26px, 3.4vw, 34px)/1 var(--display); lette
 .eyebrow { margin: 0; color: var(--faint); font-size: 11px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
 
 .filters, .daynav { display: flex; align-items: end; gap: 8px; }
-.daynav button, .daynav input, .analyst input { height: 34px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); transition: border-color .15s ease, box-shadow .15s ease; }
+.daynav button, .daynav input, .analyst select { height: 34px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); transition: border-color .15s ease, box-shadow .15s ease; }
 .daynav button { width: 34px; font-size: 20px; line-height: 1; }
-.daynav button:hover, .daynav input:hover, .analyst input:hover { border-color: var(--strong); }
+.daynav button:hover, .daynav input:hover, .analyst select:hover { border-color: var(--strong); }
 .daynav input { padding: 0 8px; }
-.analyst { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 11px; }
-.analyst input { width: 104px; padding: 0 8px; }
+.analyst { display: flex; align-items: center; gap: var(--sp-2); color: var(--muted); font: 500 var(--t-small)/1.5 var(--ui); }
+.analyst select { min-width: 140px; max-width: 240px; padding: 0 var(--sp-3); font: 500 var(--t-body)/1.5 var(--ui); }
+.analyst option { font: inherit; }
 
 .pulse, .metric, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 .pulse { margin-bottom: 16px; padding: 16px 24px; }
@@ -119,7 +122,7 @@ tbody tr:hover { background: var(--sunken); }
   .daynav { flex: 1; }
   .daynav input { min-width: 0; flex: 1; }
   .analyst { width: 100%; }
-  .analyst input { width: 100%; }
+  .analyst select { flex: 1; min-width: 0; max-width: none; }
   .metrics { grid-template-columns: 1fr; }
   .pulse { padding: 16px; }
   .pulseTop { flex-direction: column; }
